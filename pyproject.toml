@@ -1,0 +1,23 @@
+[project]
+name = "pluto"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "bymzy", email = "bymzy@outlook.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "gymnasium>=1.0.0",
+    "matplotlib>=3.11.2",
+    "numpy<2",
+    "stable-baselines3>=2.4.1",
+    "torch==2.2.2",
+]
+
+[project.scripts]
+pluto = "pluto:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
