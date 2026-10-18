@@ -1,0 +1,17 @@
+<view class="page">
+  <view wx:if="{{!items.length}}" class="empty">还没有识别记录</view>
+
+  <view
+    wx:for="{{items}}"
+    wx:key="id"
+    class="record"
+    data-id="{{item.id}}"
+    bindtap="openRecord"
+  >
+    <image class="thumb" src="{{item.imagePath}}" mode="aspectFill" />
+    <view class="record-body">
+      <view class="record-meta">{{item.langName}} · {{item.dateText}}</view>
+      <view class="record-sentence">{{item.sentence || item.wordText}}</view>
+    </view>
+  </view>
+</view>

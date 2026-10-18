@@ -1,0 +1,7 @@
+{
+  "name": "tts",
+  "version": "1.0.0",
+  "description": "语音合成云函数（TokenHub MiniMax）",
+  "main": "index.js",
+  "dependencies": {}
+}

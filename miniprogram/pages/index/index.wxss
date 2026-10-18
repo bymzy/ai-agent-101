@@ -1,0 +1,89 @@
+.hero {
+  padding: 40rpx 8rpx 48rpx;
+}
+
+.hero-title {
+  font-size: 52rpx;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  color: #8a9099;
+  font-size: 28rpx;
+}
+
+.levels {
+  display: flex;
+}
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.language {
+  margin: 0 16rpx 16rpx 0;
+  padding: 16rpx 28rpx;
+  border-radius: 999rpx;
+  background: #f2f3f5;
+  color: #4e5969;
+  font-size: 28rpx;
+}
+
+.language-active {
+  background: #e8f8ee;
+  color: #07c160;
+  font-weight: 600;
+}
+
+.level {
+  flex: 1;
+  margin-right: 20rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  border-radius: 16rpx;
+  background: #f2f3f5;
+  color: #4e5969;
+}
+
+.level:last-child {
+  margin-right: 0;
+}
+
+.level-active {
+  background: #e8f8ee;
+  color: #07c160;
+  font-weight: 600;
+}
+
+.primary-btn {
+  margin-top: 8rpx;
+}
+
+.tools {
+  display: flex;
+}
+
+.tool {
+  flex: 1;
+  margin-right: 20rpx;
+  padding: 24rpx 0;
+  border-radius: 16rpx;
+  background: #f2f3f5;
+  color: #4e5969;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.tool:last-child {
+  margin-right: 0;
+}
+
+.hidden-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+}

@@ -1,0 +1,71 @@
+<view class="page">
+  <view class="section" wx:if="{{imagePath}}">
+    <view class="section-title">图片标注</view>
+    <view class="photo-wrap">
+      <image class="photo" src="{{imagePath}}" mode="widthFix" bindload="onImageLoad" />
+      <view
+        wx:for="{{words}}"
+        wx:key="word"
+        wx:if="{{item.bbox}}"
+        class="bbox"
+        style="{{item.boxStyle}}"
+      >
+        <view class="bbox-label">{{item.word}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">识别到的单词</view>
+    <view class="words">
+      <view class="word-card" wx:for="{{words}}" wx:key="word">
+        <view
+          class="word-star {{item.saved ? 'word-star-active' : ''}}"
+          data-index="{{index}}"
+          bindtap="toggleWordbook"
+        >
+          {{item.saved ? '★' : '☆'}}
+        </view>
+        <view class="word">{{item.word}}</view>
+        <view class="word-translation">{{item.translation}}</view>
+        <view class="word-category">{{item.category}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">{{langName}}句子</view>
+    <view wx:if="{{sentence}}" class="sentence">{{sentence}}</view>
+    <view wx:if="{{translation}}" class="sentence-translation">{{translation}}</view>
+    <view wx:if="{{!sentence}}" class="placeholder">
+      {{generating ? '正在生成句子…' : '正在准备句子…'}}
+    </view>
+    <view class="actions">
+      <button
+        class="primary-btn"
+        disabled="{{!sentence || speaking}}"
+        bindtap="playSentence"
+      >
+        播放语音
+      </button>
+    </view>
+    <view wx:if="{{sentence && !generating}}" class="regenerate" bindtap="generateSentence">
+      换一句
+    </view>
+    <view wx:if="{{error}}" class="error">{{error}}</view>
+    <view wx:if="{{error && !sentence}}" class="retry" bindtap="generateSentence">重试</view>
+  </view>
+
+  <button
+    class="share-btn"
+    loading="{{sharing}}"
+    disabled="{{!sentence || sharing || !imagePath}}"
+    bindtap="shareImage"
+  >
+    生成分享图
+  </button>
+  <view wx:if="{{!imagePath}}" class="share-hint">此结果没有原图，无法生成分享图</view>
+  <view wx:elif="{{!sentence}}" class="share-hint">先生成句子再分享</view>
+
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+</view>

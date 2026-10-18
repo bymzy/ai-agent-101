@@ -1,0 +1,29 @@
+<view class="page">
+  <view wx:if="{{!total}}" class="empty">单词本还是空的，去结果页点星标收藏吧</view>
+
+  <view wx:for="{{groups}}" wx:key="lang" class="group">
+    <view class="group-title">{{item.langName}}</view>
+
+    <view
+      wx:for="{{item.categories}}"
+      wx:for-item="category"
+      wx:key="name"
+      class="category"
+    >
+      <view class="category-title">{{category.name}}</view>
+
+      <view
+        wx:for="{{category.words}}"
+        wx:for-item="word"
+        wx:key="id"
+        class="word-row"
+      >
+        <view class="word-info">
+          <view class="word-text">{{word.word}}</view>
+          <view class="word-translation">{{word.translation}}</view>
+        </view>
+        <view class="word-remove" data-id="{{word.id}}" catchtap="removeWord">删除</view>
+      </view>
+    </view>
+  </view>
+</view>

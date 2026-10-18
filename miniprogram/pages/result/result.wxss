@@ -1,0 +1,144 @@
+.words {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.photo-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16rpx;
+  background: #f2f3f5;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+}
+
+.bbox {
+  position: absolute;
+  box-sizing: border-box;
+  border: 3rpx solid #07c160;
+  border-radius: 8rpx;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.bbox-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 100%;
+  padding: 2rpx 10rpx;
+  border-radius: 0 0 8rpx 0;
+  background: #07c160;
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+}
+
+.share-hint {
+  margin-top: 16rpx;
+  color: #8a9099;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.word-card {
+  position: relative;
+  min-width: 200rpx;
+  margin: 0 20rpx 20rpx 0;
+  padding: 20rpx 64rpx 20rpx 24rpx;
+  border-radius: 16rpx;
+  background: #f2f3f5;
+}
+
+.word-star {
+  position: absolute;
+  right: 16rpx;
+  top: 10rpx;
+  font-size: 38rpx;
+  line-height: 1.4;
+  color: #c9cdd4;
+}
+
+.word-star-active {
+  color: #f5a623;
+}
+
+.word {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.word-translation {
+  margin-top: 4rpx;
+  color: #8a9099;
+  font-size: 26rpx;
+}
+
+.word-category {
+  display: inline-block;
+  margin-top: 8rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  background: #e8f8ee;
+  color: #07c160;
+  font-size: 22rpx;
+}
+
+.sentence {
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.sentence-translation {
+  margin-top: 12rpx;
+  color: #8a9099;
+  font-size: 28rpx;
+}
+
+.placeholder {
+  color: #a8adb5;
+  font-size: 28rpx;
+}
+
+.actions {
+  display: flex;
+  margin-top: 28rpx;
+}
+
+.actions .secondary-btn {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.actions .primary-btn {
+  flex: 1;
+}
+
+.regenerate {
+  margin-top: 16rpx;
+  color: #07c160;
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.retry {
+  margin-top: 12rpx;
+  color: #07c160;
+  font-size: 26rpx;
+  text-align: center;
+}

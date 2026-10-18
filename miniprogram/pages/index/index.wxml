@@ -1,0 +1,59 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">拍照学外语</view>
+    <view class="hero-subtitle">拍一张图，认识身边的外语</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">选择语言</view>
+    <view class="languages">
+      <view
+        wx:for="{{languages}}"
+        wx:key="id"
+        class="language {{item.id === lang ? 'language-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSelectLanguage"
+      >
+        {{item.name}}
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">选择难度</view>
+    <view class="levels">
+      <view
+        wx:for="{{levels}}"
+        wx:key="id"
+        class="level {{item.id === level ? 'level-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSelectLevel"
+      >
+        {{item.name}}
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">选择图片</view>
+    <button
+      class="primary-btn"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bindtap="chooseImage"
+    >
+      {{loading ? loadingText : '拍照 / 从相册选择'}}
+    </button>
+    <view wx:if="{{error}}" class="error">{{error}}</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">学习工具</view>
+    <view class="tools">
+      <navigator class="tool" url="/pages/history/history">识别记录</navigator>
+      <navigator class="tool" url="/pages/wordbook/wordbook">单词本</navigator>
+    </view>
+  </view>
+
+  <canvas type="2d" id="normalizeCanvas" class="hidden-canvas"></canvas>
+</view>

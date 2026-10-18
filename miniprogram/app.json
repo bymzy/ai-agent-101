@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/result/result",
+    "pages/history/history",
+    "pages/wordbook/wordbook"
+  ],
+  "window": {
+    "navigationBarTitleText": "拍照学外语",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f6f8"
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,57 @@
+page {
+  background: #f5f6f8;
+  color: #1f2329;
+  font-size: 30rpx;
+  line-height: 1.6;
+}
+
+.page {
+  padding: 32rpx;
+}
+
+.section {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 28rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+
+.primary-btn,
+.secondary-btn,
+.share-btn {
+  border-radius: 44rpx;
+  font-size: 30rpx;
+}
+
+.primary-btn {
+  background: #07c160;
+  color: #ffffff;
+}
+
+.secondary-btn {
+  background: #eef0f3;
+  color: #1f2329;
+}
+
+.share-btn {
+  margin-top: 8rpx;
+  background: #ffffff;
+  color: #07c160;
+  border: 2rpx solid #07c160;
+}
+
+button::after {
+  border: none;
+}
+
+.error {
+  margin-top: 20rpx;
+  color: #e64340;
+  font-size: 26rpx;
+}
