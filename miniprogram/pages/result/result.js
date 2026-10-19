@@ -83,13 +83,19 @@ Page({
     recordPath: '',
     recordSeconds: 0,
     playingRecord: false,
+    wordPlayingIndex: -1,
+    wordLoadingIndex: -1,
   },
 
   onLoad(options) {
+    this.audioToken = 0;
     this.unsubscribeRecordStop = recorder.onStop((res) => this.handleRecordStop(res));
     speech.onEnded(() => {
       if (this.data.playingRecord) {
         this.setData({ playingRecord: false });
+      }
+      if (this.data.wordPlayingIndex !== -1) {
+        this.setData({ wordPlayingIndex: -1 });
       }
     });
 
@@ -100,14 +106,17 @@ Page({
     const words = decodeWords(opts.words);
 
     if (words.length) {
-      this.setData({
-        level,
-        lang,
-        langName,
-        words: decorateWords(words, lang),
-        sentence: decodeText(opts.sentence),
-        scene: decodeText(opts.scene),
-      });
+      this.setData(
+        {
+          level,
+          lang,
+          langName,
+          words: decorateWords(words, lang),
+          sentence: decodeText(opts.sentence),
+          scene: decodeText(opts.scene),
+        },
+        () => this.prefetchSentence()
+      );
       return;
     }
 
@@ -156,6 +165,8 @@ Page({
           }
           if (!pending.sentence) {
             this.generateSentence();
+          } else {
+            this.prefetchSentence();
           }
         }
       );
@@ -205,6 +216,14 @@ Page({
     return Promise.reject(new Error('图片不存在'));
   },
 
+  prefetchSentence() {
+    const text = this.data.sentence;
+    if (!text) {
+      return;
+    }
+    speech.prefetch(text, { lang: this.data.lang }).catch(() => {});
+  },
+
   generateSentence() {
     if (this.data.generating || !this.data.words.length) {
       return;
@@ -222,6 +241,7 @@ Page({
           translation,
           generating: false,
         });
+        this.prefetchSentence();
         try {
           if (this.data.recordId) {
             history.update(this.data.recordId, { sentence, translation });
@@ -261,19 +281,69 @@ Page({
     if (!text || this.data.speaking || this.data.recordState === 'recording') {
       return;
     }
-    this.setData({ speaking: true, playingRecord: false });
-    wx.showLoading({ title: '合成中', mask: true });
+    const token = (this.audioToken = this.audioToken + 1);
+    speech.stop();
+    this.setData({
+      speaking: true,
+      playingRecord: false,
+      wordPlayingIndex: -1,
+      wordLoadingIndex: -1,
+    });
     speech
-      .speak(text, { lang: this.data.lang })
-      .then(() => {
-        wx.hideLoading();
+      .prefetch(text, { lang: this.data.lang })
+      .then((path) => {
+        if (token !== this.audioToken) {
+          return;
+        }
+        speech.playLocal(path);
         this.setData({ speaking: false });
       })
       .catch((err) => {
-        wx.hideLoading();
+        if (token !== this.audioToken) {
+          return;
+        }
         this.setData({ speaking: false });
         wx.showToast({
           title: (err && err.message) || '语音合成失败',
+          icon: 'none',
+        });
+      });
+  },
+
+  playWord(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const item = this.data.words[index];
+    if (!item || !item.word) {
+      return;
+    }
+    if (this.data.recordState === 'recording') {
+      wx.showToast({ title: '录音中无法播放', icon: 'none' });
+      return;
+    }
+    const token = (this.audioToken = this.audioToken + 1);
+    speech.stop();
+    this.setData({
+      wordLoadingIndex: index,
+      wordPlayingIndex: -1,
+      speaking: false,
+      playingRecord: false,
+    });
+    speech
+      .prefetch(item.word, { lang: this.data.lang })
+      .then((path) => {
+        if (token !== this.audioToken) {
+          return;
+        }
+        speech.playLocal(path);
+        this.setData({ wordLoadingIndex: -1, wordPlayingIndex: index });
+      })
+      .catch((err) => {
+        if (token !== this.audioToken) {
+          return;
+        }
+        this.setData({ wordLoadingIndex: -1 });
+        wx.showToast({
+          title: (err && err.message) || '发音失败，请重试',
           icon: 'none',
         });
       });
@@ -301,8 +371,14 @@ Page({
   },
 
   startRecording() {
+    this.audioToken = (this.audioToken || 0) + 1;
     speech.stop();
-    this.setData({ playingRecord: false });
+    this.setData({
+      playingRecord: false,
+      speaking: false,
+      wordPlayingIndex: -1,
+      wordLoadingIndex: -1,
+    });
     recorder
       .start()
       .then(() => {
@@ -351,11 +427,14 @@ Page({
   handleRecordStop(res) {
     this.clearRecordTimer();
     if (res && res.tempFilePath) {
-      this.setData({
-        recordState: 'recorded',
-        recordPath: res.tempFilePath,
-        recordSeconds: Math.max(1, Math.round((res.duration || 0) / 1000)),
-      });
+      this.setData(
+        {
+          recordState: 'recorded',
+          recordPath: res.tempFilePath,
+          recordSeconds: Math.max(1, Math.round((res.duration || 0) / 1000)),
+        },
+        () => this.playMyRecord()
+      );
     } else {
       this.setData({ recordState: 'idle', recordPath: '', recordSeconds: 0 });
     }
@@ -366,19 +445,31 @@ Page({
       return;
     }
     if (this.data.playingRecord) {
+      this.audioToken = (this.audioToken || 0) + 1;
       speech.stop();
       this.setData({ playingRecord: false });
       return;
     }
+    this.audioToken = (this.audioToken || 0) + 1;
     speech.playLocal(this.data.recordPath);
-    this.setData({ playingRecord: true });
+    this.setData({
+      playingRecord: true,
+      speaking: false,
+      wordPlayingIndex: -1,
+      wordLoadingIndex: -1,
+    });
   },
 
-  playOriginal() {
-    if (this.data.recordState === 'recording') {
+  changeSentence() {
+    if (this.data.generating || this.data.recordState === 'recording') {
       return;
     }
-    this.playSentence();
+    if (this.data.recordState === 'recorded') {
+      this.audioToken = (this.audioToken || 0) + 1;
+      speech.stop();
+      this.discardRecord();
+    }
+    this.generateSentence();
   },
 
   discardRecord() {
@@ -392,6 +483,7 @@ Page({
   },
 
   onUnload() {
+    this.audioToken = (this.audioToken || 0) + 1;
     this.clearRecordTimer();
     if (this.unsubscribeRecordStop) {
       this.unsubscribeRecordStop();
@@ -509,7 +601,7 @@ Page({
       params.push(`scene=${encodeURIComponent(scene)}`);
     }
     return {
-      title: sentence || '拍照学外语',
+      title: sentence || '看图学外语',
       path: `/pages/result/result?${params.join('&')}`,
     };
   },

@@ -11,6 +11,7 @@
 - 原生微信小程序（WXML/WXSS/JS），**不用** Taro / uni-app，因此没有前端构建步骤。
 - AI 视觉识别、组句、语音合成全部放在**微信云开发云函数**里，客户端只通过 `wx.cloud.callFunction` 调用。
 - TTS 用云函数 `tts` 调 TokenHub MiniMax 同步语音合成；前端 `utils/speech.js` 的 `speak(text)` 负责调用、落盘缓存与播放。
+- 结果页进入后静默预生成句子音频（`speech.prefetch`，不自动播放）；单词卡片点击播放单词；`prefetch` 按缓存路径做 in-flight 去重，单词/句子/录音共用单一 `InnerAudioContext`。
 - **不要再用「微信同声传译」插件**：该插件已在微信服务市场下架，无法新增；`app.json` 不应再声明 `plugins.WechatSI`。
 - 识别/组句/语音均已接入**腾讯云 TokenHub**：`Authorization: Bearer <API KEY>`，不用 SecretId/SecretKey、不用腾讯云 SDK。必须封装在云函数内的适配层（`providers/`），`AI_PROVIDER` 切换识别/组句实现，保留 `mock` 兜底。
 - 结果页图片标注用 WXML 百分比覆盖层；分享图用隐藏 Canvas 2D 合成，通过 `wx.showShareImageMenu` 分享；分享图右下角使用**内置静态小程序码** `miniprogram/assets/wxacode.png`（扫码打开首页），不要按图片调用 `getUnlimited`。
@@ -60,6 +61,7 @@ cloudfunctions/     # 云函数根目录，必须写入 project.config.json 的 
 - 识别 prompt 返回固定 `category`（`common/categories.js`），非法值归「其他」；组句 prompt 使用语言老师人设。识别词可附带可选 `phonetic`（en/fr/es/de 用 IPA、ja 用平假名、ko 用罗马音），空则省略，前端必须 `wx:if` 渲染。
 - 跟读录音只存临时文件、不上传不持久化；播放统一走 `utils/speech.js` 的共享 `InnerAudioContext`（`speak` / `playLocal` 互斥），不要新建音频上下文。麦克风需在公众平台隐私指引声明。
 - 共享配置（`levels.js` / `languages.js` / `categories.js`）被同步到**云函数根目录**；`providers/*.js` 引用时用 `../categories`，不要写成 `./categories`。
+- 改完共享配置后必须**完整重新部署** `recognize` / `analyze`；旧包/只增量更新会报 `-504002 SyntaxError`（已踩坑，重部署即恢复）。
 - 走云函数可绕开 `wx.request` 的服务器域名白名单；若改为直连 HTTP，记得在小程序后台配置合法域名。
 - 部署云函数用 IDE「上传并部署：云端安装依赖」，或 `wechatide cloud_fn_deploy --appid <appid> --env <env> --path <abs目录> --remote-npm-install`（写操作，需在 IDE 点确认）。CLI 部署不会应用 `config.json` 权限。
 - 分享卡片用页面 `onShareAppMessage` 返回 `title`/`path`/`imageUrl`；分享图需是本地或云存储可访问资源。

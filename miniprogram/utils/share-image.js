@@ -220,14 +220,14 @@ function render(options) {
       ctx.fillStyle = '#8a9099';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.fillText('扫码拍照学外语', CANVAS_WIDTH - pad, codeY - 34);
+      ctx.fillText('扫码看图学外语', CANVAS_WIDTH - pad, codeY - 34);
     }
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.font = 'bold 30px sans-serif';
     ctx.fillStyle = '#07c160';
-    ctx.fillText('拍照学外语', pad, CANVAS_HEIGHT - pad - 36);
+    ctx.fillText('看图学外语', pad, CANVAS_HEIGHT - pad - 36);
 
     return new Promise((resolve, reject) => {
       wx.canvasToTempFilePath(

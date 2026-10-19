@@ -2,6 +2,7 @@ const { getLanguage } = require('../common/languages');
 
 let audioContext = null;
 let endedCallback = null;
+const inflight = {};
 
 function hashText(text) {
   let hash = 5381;
@@ -49,7 +50,14 @@ function isUsableFile(filePath) {
   }
 }
 
-function speak(text, options) {
+function isCached(text, options) {
+  if (!text) {
+    return false;
+  }
+  return isUsableFile(getCachePath(text, options || {}));
+}
+
+function prefetch(text, options) {
   const opts = options || {};
   return new Promise((resolve, reject) => {
     if (!text) {
@@ -59,11 +67,13 @@ function speak(text, options) {
 
     const cachePath = getCachePath(text, opts);
     if (isUsableFile(cachePath)) {
-      play(cachePath);
       resolve(cachePath);
       return;
     }
-
+    if (inflight[cachePath]) {
+      inflight[cachePath].then(resolve, reject);
+      return;
+    }
     if (!wx.cloud) {
       reject(new Error('云开发未初始化'));
       return;
@@ -77,7 +87,7 @@ function speak(text, options) {
       data.lang = opts.lang;
     }
 
-    wx.cloud
+    const request = wx.cloud
       .callFunction({ name: 'tts', data })
       .then((res) => {
         const result = res && res.result;
@@ -90,12 +100,27 @@ function speak(text, options) {
           throw new Error('语音数据为空');
         }
         wx.getFileSystemManager().writeFileSync(cachePath, audio.audioBase64, 'base64');
-        play(cachePath);
-        resolve(cachePath);
-      })
-      .catch((err) => {
-        reject(new Error((err && (err.message || err.errMsg)) || '语音合成失败'));
+        return cachePath;
       });
+
+    inflight[cachePath] = request;
+    request.then(
+      (path) => {
+        delete inflight[cachePath];
+        resolve(path);
+      },
+      (err) => {
+        delete inflight[cachePath];
+        reject(new Error((err && (err.message || err.errMsg)) || '语音合成失败'));
+      }
+    );
+  });
+}
+
+function speak(text, options) {
+  return prefetch(text, options).then((filePath) => {
+    play(filePath);
+    return filePath;
   });
 }
 
@@ -115,6 +140,8 @@ function onEnded(callback) {
 
 module.exports = {
   speak,
+  prefetch,
+  isCached,
   stop,
   playLocal,
   onEnded,

@@ -1,6 +1,6 @@
 <view class="page">
   <view class="hero">
-    <view class="hero-title">拍照学外语</view>
+    <view class="hero-title">看图学外语</view>
     <view class="hero-subtitle">拍一张图，认识身边的外语</view>
   </view>
 
@@ -53,11 +53,10 @@
       <navigator class="tool" url="/pages/history/history">识别记录</navigator>
       <navigator class="tool" url="/pages/wordbook/wordbook">单词本</navigator>
       <view class="tool" bindtap="openReview">单词闪卡</view>
-      <view class="tool" bindtap="openRecall">场景回忆</view>
     </view>
   </view>
 
-  <view class="section stats" bindtap="openReview">
+  <view class="section stats">
     <view class="section-title">今日打卡</view>
     <view class="stats-row">
       <view class="stats-cell">今日复习 {{summary.todayAnswered}}/{{summary.goal}}</view>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-「拍照学外语」: a native WeChat Mini Program (WXML/WXSS/JS, no Taro/uni-app) backed by WeChat Cloud Development. Flow: choose/photo → normalize and upload image → cloud function calls Tencent Cloud TokenHub → target-language words + Chinese translations + optional phonetic + normalized bbox + scene + sentence → result page renders bbox overlays, plays TTS, records sentence shadowing, exports a share image, and persists local history/wordbook. Learning loop: wordbook flashcards (Leitner), scene recall from history images, and a daily goal/streak strip. Six languages (`en/ja/ko/fr/es/de`), three levels (`primary`/`junior`/`senior`, displayed as 入门/进阶/高级).
+「看图学外语」: a native WeChat Mini Program (WXML/WXSS/JS, no Taro/uni-app) backed by WeChat Cloud Development. Flow: choose/photo → normalize and upload image → cloud function calls Tencent Cloud TokenHub → target-language words + Chinese translations + optional phonetic + normalized bbox + scene + sentence → result page renders bbox overlays, plays TTS, records sentence shadowing, exports a share image, and persists local history/wordbook. Learning loop: wordbook flashcards (Leitner), scene recall from history images, and a daily goal/streak strip. Six languages (`en/ja/ko/fr/es/de`), three levels (`primary`/`junior`/`senior`, displayed as 入门/进阶/高级).
 
 No frontend build step, no test suite, no linter. Open the repo root in WeChat DevTools; `project.config.json` defines `miniprogramRoot` and `cloudfunctionRoot`.
 

@@ -17,12 +17,19 @@
 
   <view class="section">
     <view class="section-title">识别到的单词</view>
+    <view class="word-tip">点击单词可听发音</view>
     <view class="words">
-      <view class="word-card" wx:for="{{words}}" wx:key="word">
+      <view
+        class="word-card {{wordPlayingIndex === index ? 'word-card-playing' : ''}}"
+        wx:for="{{words}}"
+        wx:key="word"
+        data-index="{{index}}"
+        bindtap="playWord"
+      >
         <view
           class="word-star {{item.saved ? 'word-star-active' : ''}}"
           data-index="{{index}}"
-          bindtap="toggleWordbook"
+          catchtap="toggleWordbook"
         >
           {{item.saved ? '★' : '☆'}}
         </view>
@@ -30,6 +37,9 @@
         <view wx:if="{{item.phonetic}}" class="word-phonetic">{{item.phonetic}}</view>
         <view class="word-translation">{{item.translation}}</view>
         <view class="word-category">{{item.category}}</view>
+        <view class="word-play">
+          {{wordLoadingIndex === index ? '合成中…' : wordPlayingIndex === index ? '播放中' : '点击发音'}}
+        </view>
       </view>
     </view>
   </view>
@@ -41,16 +51,17 @@
     <view wx:if="{{!sentence}}" class="placeholder">
       {{generating ? '正在生成句子…' : '正在准备句子…'}}
     </view>
-    <view class="actions">
+    <view wx:if="{{recordState !== 'recorded'}}" class="actions">
       <button
         class="secondary-btn"
         disabled="{{!sentence || speaking}}"
         bindtap="toggleRecord"
       >
-        {{recordState === 'recording' ? '停止录音' : recordState === 'recorded' ? '重新录制' : '跟读'}}
+        {{recordState === 'recording' ? '停止录音' : '跟读'}}
       </button>
       <button
         class="primary-btn"
+        loading="{{speaking}}"
         disabled="{{!sentence || speaking || recordState === 'recording'}}"
         bindtap="playSentence"
       >
@@ -60,14 +71,25 @@
     <view wx:if="{{recordState === 'recording'}}" class="record-hint">
       正在录音 {{recordSeconds}}s，点击「停止录音」结束
     </view>
-    <view wx:if="{{recordState === 'recorded'}}" class="record-panel">
-      <button class="secondary-btn record-btn" bindtap="playOriginal">播放原音</button>
-      <button class="secondary-btn record-btn record-btn-last" bindtap="playMyRecord">
+    <view wx:if="{{recordState === 'recorded'}}" class="actions">
+      <button class="secondary-btn" bindtap="playMyRecord">
         {{playingRecord ? '停止播放' : '播放我的录音'}}
       </button>
-      <view class="record-again" bindtap="toggleRecord">重新录制</view>
+      <button
+        class="primary-btn"
+        loading="{{speaking}}"
+        disabled="{{speaking}}"
+        bindtap="playSentence"
+      >
+        播放语音
+      </button>
     </view>
-    <view wx:if="{{sentence && !generating}}" class="regenerate" bindtap="generateSentence">
+    <view wx:if="{{recordState === 'recorded'}}" class="record-links">
+      <text class="record-link" bindtap="toggleRecord">重录</text>
+      <text class="record-sep">·</text>
+      <text class="record-link" bindtap="changeSentence">换一句</text>
+    </view>
+    <view wx:if="{{sentence && recordState === 'idle' && !generating}}" class="regenerate" bindtap="changeSentence">
       换一句
     </view>
     <view wx:if="{{error}}" class="error">{{error}}</view>

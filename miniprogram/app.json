@@ -8,7 +8,7 @@
     "pages/recall/recall"
   ],
   "window": {
-    "navigationBarTitleText": "拍照学外语",
+    "navigationBarTitleText": "看图学外语",
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f5f6f8"

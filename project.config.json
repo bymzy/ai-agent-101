@@ -2,7 +2,7 @@
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
   "compileType": "miniprogram",
-  "projectname": "拍照学外语",
+  "projectname": "看图学外语",
   "appid": "wx232c37e00f6becb5",
   "libVersion": "latest",
   "setting": {

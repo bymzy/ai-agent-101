@@ -1,10 +1,10 @@
 # 复习闭环 v1 实现计划（闪卡复习 / 跟读 / 场景回忆 / 音标+打卡）
 
-> 状态：已评审待实施（2026-10-19）。需求已同步至 docs/spec.md 与 todo.md。
+> 状态：已实施，核心流程已验证（2026-10-19）；剩余多语言音标、真机录音与隐私声明。
 
 ## Context
 
-「拍照学外语」现有闭环：拍照 → 识别 → 组句 → 语音 → 收藏/分享，完成「输入 + 理解」，但缺「记忆 + 输出」：单词收藏后无复习机制（遗忘曲线）、全程被动输入（无主动回忆）、无口语输出练习、无进度反馈。新增四项需求：
+「看图学外语」现有闭环：拍照 → 识别 → 组句 → 语音 → 收藏/分享，完成「输入 + 理解」，但缺「记忆 + 输出」：单词收藏后无复习机制（遗忘曲线）、全程被动输入（无主动回忆）、无口语输出练习、无进度反馈。新增四项需求：
 
 1. **单词复习闪卡**（间隔重复 + 三种测验模式 + 错词待强化）
 2. **跟读练习**（结果页录音，与原音对比；不做 AI 评分——留作会员权益 P2）
@@ -78,10 +78,11 @@
 **[../miniprogram/pages/result/result.js](../miniprogram/pages/result/result.js) 集成：**
 - 新 data：`recordState: 'idle'|'recording'|'recorded'`、`recordPath`、`recordSeconds`、`playingRecord`。
 - `toggleRecord()`：idle → `speech.stop()` + `recorder.start()`（errMsg 含 auth/deny → modal「需要麦克风权限」+ `wx.openSetting`）；recording → 清计时器 + `recorder.stop()` → `recordState='recorded'`。
-- `playMyRecord()`：`speech.playLocal(recordPath)` 切换播放/停止；`playOriginal()` 复用 `playSentence()`；`discardRecord()` 重置。
+- `playMyRecord()`：`speech.playLocal(recordPath)` 切换播放/停止；`playSentence()` 播放原音；`discardRecord()` 重置。
+- 停止录音后自动播放本条录音；`changeSentence()` 先丢弃当前录音再走 `generateSentence()`。
 - 防护：`playSentence()` 在 recording 状态直接 return；`onUnload` 若在录音则 `recorder.stop()`（释放麦克风）+ `speech.stop()`。
 
-**result.wxml**（`.actions` 行 43-51 行）：加「跟读/停止录音」按钮 + 录音中提示（{{recordSeconds}}s）+ 录制完成面板（播放原音 / 播放我的录音 / 重新录制）。样式复用 `.secondary-btn`，补 `.record-hint`/`.record-panel`。
+**result.wxml**：跟读区按三态展示：未录音「跟读 / 播放语音」+「换一句」；录音中「停止录音」+ 计时提示（{{recordSeconds}}s）；已录音「播放我的录音 / 播放语音」+「重录 · 换一句」。样式复用 `.secondary-btn`，补 `.record-hint`/`.record-links`。
 
 app.json 无需权限字段。合规：todo.md 增加「公众平台隐私指引声明麦克风（scope.record，用于跟读练习）」。
 
@@ -97,7 +98,7 @@ app.json 无需权限字段。合规：todo.md 增加「公众平台隐私指引
 
 **入口：**
 - [../miniprogram/pages/history/history.wxml](../miniprogram/pages/history/history.wxml)：每条记录加「回忆」`catchtap="openRecall"`（catchtap 避免同时触发还原）；history.js `openRecall(e)` → `navigateTo /pages/recall/recall?id=xxx`。
-- [../miniprogram/pages/index/index.wxml](../miniprogram/pages/index/index.wxml) tools 行加「场景回忆」`bindtap` 项；index.js `openRecall()` → 取 `history.load()[0]` 跳转，无记录 toast。
+- ~~首页 tools 行加「场景回忆」入口~~（已移除，仅保留历史记录页「回忆」入口）；`pages/recall` 仍从 `pages/history` 进入。
 
 回忆页自身不写 storage（评分只更新 reviewState/stats，不动 pendingResult）。
 
@@ -133,7 +134,7 @@ app.json 无需权限字段。合规：todo.md 增加「公众平台隐私指引
 2. 复习页三模式轮转；答错 → 单词本现「待强化」徽章；总结页再来一轮立即含错词；Storage 面板见 `reviewState`/`stats` 更新。
 3. 场景回忆：历史记录 → 点图揭晓最近 bbox → 自评 → 总结；不记得的词（已收藏）变待强化。
 4. 首页统计条数字随答题变化；mock 下听音选词走 TTS 失败兜底路径。
-5. 空态：空单词本进复习页、空历史点场景回忆。
+5. 空态：空单词本进复习页；空历史在识别记录页显示空态、无「回忆」入口。
 
 **模拟器：** app.json 页面注册与导航标题；结果页跟读状态机（无麦克风时验证权限拒绝 modal 路径）。
 

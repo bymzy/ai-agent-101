@@ -4,7 +4,6 @@ const { LEVELS, LEVEL_IDS } = require('../../common/levels');
 const { LANGUAGES, LANGUAGE_IDS } = require('../../common/languages');
 const cloudApi = require('../../utils/cloud');
 const imageUtil = require('../../utils/image');
-const history = require('../../utils/history');
 const wordbook = require('../../utils/wordbook');
 const stats = require('../../utils/stats');
 
@@ -54,15 +53,6 @@ Page({
       return;
     }
     wx.navigateTo({ url: '/pages/review/review' });
-  },
-
-  openRecall() {
-    const latest = history.load()[0];
-    if (!latest) {
-      wx.showToast({ title: '还没有识别记录', icon: 'none' });
-      return;
-    }
-    wx.navigateTo({ url: `/pages/recall/recall?id=${latest.id}` });
   },
 
   onSelectLevel(e) {

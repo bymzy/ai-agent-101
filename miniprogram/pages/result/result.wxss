@@ -88,6 +88,22 @@
   font-size: 24rpx;
 }
 
+.word-tip {
+  margin-bottom: 16rpx;
+  color: #8a9099;
+  font-size: 24rpx;
+}
+
+.word-card-playing {
+  background: #e8f8ee;
+}
+
+.word-play {
+  margin-top: 8rpx;
+  color: #07c160;
+  font-size: 22rpx;
+}
+
 .word-translation {
   margin-top: 4rpx;
   color: #8a9099;
@@ -142,27 +158,22 @@
   text-align: center;
 }
 
-.record-panel {
+.record-links {
   display: flex;
-  flex-wrap: wrap;
-  margin-top: 20rpx;
-}
-
-.record-btn {
-  flex: 1;
-  margin-right: 20rpx;
-}
-
-.record-btn-last {
-  margin-right: 0;
-}
-
-.record-again {
-  width: 100%;
+  align-items: center;
+  justify-content: center;
   margin-top: 16rpx;
+}
+
+.record-link {
+  padding: 4rpx 12rpx;
   color: #07c160;
   font-size: 26rpx;
-  text-align: center;
+}
+
+.record-sep {
+  color: #c9cdd4;
+  font-size: 24rpx;
 }
 
 .regenerate {
