@@ -1,21 +1,21 @@
 const WORDS_BY_LEVEL = {
   primary: [
-    ['cat', '猫'],
-    ['dog', '狗'],
-    ['apple', '苹果'],
-    ['cup', '杯子'],
+    ['cat', '猫', '/kæt/'],
+    ['dog', '狗', '/dɒɡ/'],
+    ['apple', '苹果', '/ˈæp.əl/'],
+    ['cup', '杯子', '/kʌp/'],
   ],
   junior: [
-    ['book', '书'],
-    ['tree', '树'],
-    ['car', '汽车'],
-    ['chair', '椅子'],
+    ['book', '书', '/bʊk/'],
+    ['tree', '树', '/triː/'],
+    ['car', '汽车', '/kɑː(r)/'],
+    ['chair', '椅子', '/tʃeə(r)/'],
   ],
   senior: [
-    ['window', '窗户'],
-    ['table', '桌子'],
-    ['phone', '手机'],
-    ['flower', '花'],
+    ['window', '窗户', '/ˈwɪn.dəʊ/'],
+    ['table', '桌子', '/ˈteɪ.bəl/'],
+    ['phone', '手机', '/fəʊn/'],
+    ['flower', '花', '/ˈflaʊ.ə(r)/'],
   ],
 };
 
@@ -25,6 +25,7 @@ function recognize(imageBuffer, opts) {
   const words = pool.map((item, index) => ({
     word: item[0],
     translation: item[1],
+    phonetic: item[2],
     confidence: Number((0.95 - index * 0.05).toFixed(2)),
     level,
   }));

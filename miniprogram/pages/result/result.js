@@ -6,6 +6,7 @@ const imageUtil = require('../../utils/image');
 const shareImage = require('../../utils/share-image');
 const history = require('../../utils/history');
 const wordbook = require('../../utils/wordbook');
+const recorder = require('../../utils/recorder');
 
 const WXACODE_PATH = '/assets/wxacode.png';
 
@@ -78,9 +79,20 @@ Page({
     recordId: '',
     fromHistory: false,
     error: '',
+    recordState: 'idle',
+    recordPath: '',
+    recordSeconds: 0,
+    playingRecord: false,
   },
 
   onLoad(options) {
+    this.unsubscribeRecordStop = recorder.onStop((res) => this.handleRecordStop(res));
+    speech.onEnded(() => {
+      if (this.data.playingRecord) {
+        this.setData({ playingRecord: false });
+      }
+    });
+
     const opts = options || {};
     const level = opts.level || app.globalData.level || 'primary';
     const lang = opts.lang || app.globalData.lang || 'en';
@@ -246,10 +258,10 @@ Page({
 
   playSentence() {
     const text = this.data.sentence;
-    if (!text || this.data.speaking) {
+    if (!text || this.data.speaking || this.data.recordState === 'recording') {
       return;
     }
-    this.setData({ speaking: true });
+    this.setData({ speaking: true, playingRecord: false });
     wx.showLoading({ title: '合成中', mask: true });
     speech
       .speak(text, { lang: this.data.lang })
@@ -265,6 +277,131 @@ Page({
           icon: 'none',
         });
       });
+  },
+
+  clearRecordTimer() {
+    if (this.recordTimer) {
+      clearInterval(this.recordTimer);
+      this.recordTimer = null;
+    }
+  },
+
+  toggleRecord() {
+    if (!this.data.sentence) {
+      return;
+    }
+    if (this.data.recordState === 'recording') {
+      this.stopRecording();
+      return;
+    }
+    if (this.data.recordState === 'recorded') {
+      this.discardRecord();
+    }
+    this.startRecording();
+  },
+
+  startRecording() {
+    speech.stop();
+    this.setData({ playingRecord: false });
+    recorder
+      .start()
+      .then(() => {
+        this.setData({ recordState: 'recording', recordSeconds: 0, recordPath: '' });
+        this.clearRecordTimer();
+        this.recordTimer = setInterval(() => {
+          this.setData({ recordSeconds: this.data.recordSeconds + 1 });
+        }, 1000);
+      })
+      .catch((err) => {
+        const message = (err && (err.message || err.errMsg)) || '';
+        this.setData({ recordState: 'idle' });
+        if (/auth|deny|permission|权限/i.test(message)) {
+          wx.showModal({
+            title: '需要麦克风权限',
+            content: '跟读练习需要录制你的声音，请在设置中允许使用麦克风。',
+            confirmText: '去设置',
+            success: (res) => {
+              if (!res.confirm) {
+                return;
+              }
+              wx.openSetting({
+                success: (setting) => {
+                  const auth = setting && setting.authSetting;
+                  if (auth && auth['scope.record']) {
+                    this.startRecording();
+                  }
+                },
+              });
+            },
+          });
+        } else {
+          wx.showToast({ title: '录音启动失败', icon: 'none' });
+        }
+      });
+  },
+
+  stopRecording() {
+    this.clearRecordTimer();
+    recorder.stop().catch(() => {
+      this.setData({ recordState: 'idle', recordPath: '', recordSeconds: 0 });
+      wx.showToast({ title: '录音失败', icon: 'none' });
+    });
+  },
+
+  handleRecordStop(res) {
+    this.clearRecordTimer();
+    if (res && res.tempFilePath) {
+      this.setData({
+        recordState: 'recorded',
+        recordPath: res.tempFilePath,
+        recordSeconds: Math.max(1, Math.round((res.duration || 0) / 1000)),
+      });
+    } else {
+      this.setData({ recordState: 'idle', recordPath: '', recordSeconds: 0 });
+    }
+  },
+
+  playMyRecord() {
+    if (!this.data.recordPath || this.data.recordState !== 'recorded') {
+      return;
+    }
+    if (this.data.playingRecord) {
+      speech.stop();
+      this.setData({ playingRecord: false });
+      return;
+    }
+    speech.playLocal(this.data.recordPath);
+    this.setData({ playingRecord: true });
+  },
+
+  playOriginal() {
+    if (this.data.recordState === 'recording') {
+      return;
+    }
+    this.playSentence();
+  },
+
+  discardRecord() {
+    this.clearRecordTimer();
+    this.setData({
+      recordState: 'idle',
+      recordPath: '',
+      recordSeconds: 0,
+      playingRecord: false,
+    });
+  },
+
+  onUnload() {
+    this.clearRecordTimer();
+    if (this.unsubscribeRecordStop) {
+      this.unsubscribeRecordStop();
+      this.unsubscribeRecordStop = null;
+    }
+    if (recorder.isRecording()) {
+      recorder.stop().catch(() => {});
+    }
+    speech.onEnded(null);
+    speech.stop();
   },
 
   toggleWordbook(e) {

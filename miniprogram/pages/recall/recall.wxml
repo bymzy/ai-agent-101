@@ -1,0 +1,55 @@
+<view class="page">
+  <view wx:if="{{missingImage}}" class="empty">
+    <view>图片已失效，无法进行场景回忆</view>
+    <button class="secondary-btn empty-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <block wx:else>
+    <view class="section">
+      <view class="section-title">场景回忆 · 已揭晓 {{revealedCount}}/{{words.length}}</view>
+      <view class="recall-photo-wrap">
+        <image class="recall-photo" src="{{imagePath}}" mode="widthFix" bindtap="onImageTap" />
+        <view
+          wx:for="{{words}}"
+          wx:key="word"
+          wx:if="{{item.bbox}}"
+          class="recall-box {{item.revealed ? 'recall-box-on' : ''}}"
+          style="{{item.boxStyle}}"
+          data-index="{{index}}"
+          catchtap="onBoxTap"
+        >
+          <view wx:if="{{item.revealed}}" class="recall-box-label">{{item.word}}</view>
+        </view>
+      </view>
+      <view class="recall-hint">先回忆图中的单词，再点物体位置或「揭晓」</view>
+      <button
+        class="primary-btn"
+        disabled="{{pending || finished}}"
+        bindtap="revealNext"
+      >
+        揭晓
+      </button>
+    </view>
+
+    <view wx:if="{{current}}" class="section recall-card">
+      <view class="recall-word">{{current.word}}</view>
+      <view wx:if="{{current.phonetic}}" class="recall-phonetic">{{current.phonetic}}</view>
+      <view class="recall-translation">{{current.translation}}</view>
+      <view class="recall-grade">
+        <button class="primary-btn recall-grade-btn" data-remembered="1" bindtap="grade">
+          记得
+        </button>
+        <button class="secondary-btn recall-grade-btn" data-remembered="0" bindtap="grade">
+          不记得
+        </button>
+      </view>
+    </view>
+
+    <view wx:if="{{finished}}" class="section">
+      <view class="section-title">本轮完成</view>
+      <view class="recall-score">记得 {{remembered}} · 不记得 {{forgot}}</view>
+      <button class="primary-btn recall-btn" bindtap="restart">再练一次</button>
+      <button class="secondary-btn recall-btn" bindtap="goBack">完成</button>
+    </view>
+  </block>
+</view>

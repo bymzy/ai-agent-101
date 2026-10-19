@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## 项目目标
-微信小程序：拍照/选图 → AI 识别图中物体并标注目标语言单词 → 用这些单词组成一句目标语言句子 → 转成语音播放。按入门/进阶/高级分难度，支持英语/日语/韩语/法语/西班牙语/德语；结果页展示原图与单词标注，并支持导出分享图、识别记录与单词本。
+微信小程序：拍照/选图 → AI 识别图中物体并标注目标语言单词 → 用这些单词组成一句目标语言句子 → 转成语音播放。按入门/进阶/高级分难度，支持英语/日语/韩语/法语/西班牙语/德语；结果页展示原图与单词标注，并支持导出分享图、识别记录与单词本。学习闭环：单词本闪卡复习（Leitner 间隔重复）、识别记录场景回忆、结果页跟读录音、首页打卡统计；识别词附带音标/假名/罗马音。
 
 ## 当前状态
 已搭建可运行骨架（原生小程序 + 3 个云函数）。识别/组句/语音合成都已接入**腾讯云 TokenHub**（`tokenhub` provider，OpenAI 兼容接口 + API Key）；支持六种语言，难度为入门/进阶/高级。结果页展示原图与 bbox 标注，并支持导出带静态小程序码的分享图。本轮 P0 已实现：TTS 缓存优先、结果页自动组句（保留「换一句」）、语言老师人设、单词分类、本地识别记录（10 条）、本地单词本（星标收藏）。
@@ -23,12 +23,17 @@ miniprogram/        # 小程序前端
   common/languages.js # 语言与 TTS 音色（en/ja/ko/fr/es/de）
   common/categories.js # 物品分类枚举
   utils/image.js    # 图片方向归一化 / 压缩 / 云存储下载
-  utils/speech.js   # TTS 缓存优先 + 播放
+  utils/speech.js   # TTS 缓存优先 + 播放（含 playLocal，单一音频上下文）
+  utils/recorder.js # 跟读录音（60s、临时文件、不持久化）
   utils/history.js  # 本地识别记录（10 条）
   utils/wordbook.js # 本地单词本
+  utils/review.js   # 闪卡 Leitner 状态（reviewState）
+  utils/stats.js    # 打卡统计（stats，每日目标 5 词）
   utils/share-image.js # 分享图 Canvas 绘制
   pages/history/    # 识别记录页
-  pages/wordbook/   # 单词本页
+  pages/wordbook/   # 单词本页（复习入口、待强化标记）
+  pages/review/     # 单词闪卡（看词选义 / 看义忆词 / 听音选词）
+  pages/recall/     # 场景回忆（历史图片隐藏标注，点击揭晓并自评）
 cloudfunctions/     # 云函数根目录，必须写入 project.config.json 的 cloudfunctionRoot
   recognize/        # 图片识别（scene + words + category + bbox）
   compose/          # 组句（使用 scene + 老师人设）
@@ -51,8 +56,9 @@ cloudfunctions/     # 云函数根目录，必须写入 project.config.json 的 
 - 结果页 bbox 用百分比绝对定位；分享图用隐藏 Canvas 2D，导出尺寸控制在 1365 以内（当前 1080×1350）。
 - 分享图的小程序码是**静态资源** `miniprogram/assets/wxacode.png`，从公众平台下载后替换；不要为此新增云函数或 openapi 权限。
 - TTS 云函数把 TokenHub 返回的 hex 音频转 base64 下发；前端播放前先按 `lang+voice+text` 查 `USER_DATA_PATH/tts-<hash>.mp3`，命中直接播放、不调云函数；未命中才请求并落盘。云函数响应体需控制在约 1MB 内，文本限制 500 字。
-- 识别记录/单词本本期存本地：`history` 最多 10 条，图片复制到 `USER_DATA_PATH/history/`；`wordbook` 按 `lang+word` 去重。`USER_DATA_PATH` 约 10MB，需注意图片/音频缓存总量。
-- 识别 prompt 返回固定 `category`（`common/categories.js`），非法值归「其他」；组句 prompt 使用语言老师人设。
+- 识别记录/单词本本期存本地：`history` 最多 10 条，图片复制到 `USER_DATA_PATH/history/`；`wordbook` 按 `lang+word` 去重；`reviewState` 存 Leitner 状态、`stats` 存打卡统计。`USER_DATA_PATH` 约 10MB，需注意图片/音频缓存总量。
+- 识别 prompt 返回固定 `category`（`common/categories.js`），非法值归「其他」；组句 prompt 使用语言老师人设。识别词可附带可选 `phonetic`（en/fr/es/de 用 IPA、ja 用平假名、ko 用罗马音），空则省略，前端必须 `wx:if` 渲染。
+- 跟读录音只存临时文件、不上传不持久化；播放统一走 `utils/speech.js` 的共享 `InnerAudioContext`（`speak` / `playLocal` 互斥），不要新建音频上下文。麦克风需在公众平台隐私指引声明。
 - 共享配置（`levels.js` / `languages.js` / `categories.js`）被同步到**云函数根目录**；`providers/*.js` 引用时用 `../categories`，不要写成 `./categories`。
 - 走云函数可绕开 `wx.request` 的服务器域名白名单；若改为直连 HTTP，记得在小程序后台配置合法域名。
 - 部署云函数用 IDE「上传并部署：云端安装依赖」，或 `wechatide cloud_fn_deploy --appid <appid> --env <env> --path <abs目录> --remote-npm-install`（写操作，需在 IDE 点确认）。CLI 部署不会应用 `config.json` 权限。

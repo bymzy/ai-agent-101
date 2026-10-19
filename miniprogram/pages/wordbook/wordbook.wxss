@@ -6,6 +6,29 @@
   text-align: center;
 }
 
+.wb-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+}
+
+.wb-count {
+  flex: 1;
+  color: #4e5969;
+  font-size: 26rpx;
+}
+
+.wb-start {
+  width: 200rpx;
+  margin: 0;
+  padding: 12rpx 0;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
 .group {
   margin-bottom: 28rpx;
 }
@@ -45,9 +68,29 @@
   min-width: 0;
 }
 
+.word-head {
+  display: flex;
+  align-items: center;
+}
+
 .word-text {
   font-size: 32rpx;
   font-weight: 600;
+}
+
+.word-badge {
+  margin-left: 12rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  background: #fdf3e3;
+  color: #f5a623;
+  font-size: 20rpx;
+}
+
+.word-phonetic {
+  margin-top: 2rpx;
+  color: #a8adb5;
+  font-size: 22rpx;
 }
 
 .word-translation {

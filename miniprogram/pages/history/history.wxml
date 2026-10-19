@@ -12,6 +12,9 @@
     <view class="record-body">
       <view class="record-meta">{{item.langName}} · {{item.dateText}}</view>
       <view class="record-sentence">{{item.sentence || item.wordText}}</view>
+      <view class="record-actions">
+        <view class="record-recall" data-id="{{item.id}}" catchtap="openRecall">回忆</view>
+      </view>
     </view>
   </view>
 </view>

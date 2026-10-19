@@ -1,6 +1,7 @@
 const { getLanguage } = require('../common/languages');
 
 let audioContext = null;
+let endedCallback = null;
 
 function hashText(text) {
   let hash = 5381;
@@ -15,6 +16,11 @@ function getAudioContext() {
     audioContext = wx.createInnerAudioContext();
     audioContext.onError((err) => {
       console.error('音频播放失败', err);
+    });
+    audioContext.onEnded(() => {
+      if (endedCallback) {
+        endedCallback();
+      }
     });
   }
   return audioContext;
@@ -99,7 +105,17 @@ function stop() {
   }
 }
 
+function playLocal(filePath) {
+  play(filePath);
+}
+
+function onEnded(callback) {
+  endedCallback = callback;
+}
+
 module.exports = {
   speak,
   stop,
+  playLocal,
+  onEnded,
 };

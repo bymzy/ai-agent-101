@@ -24,6 +24,7 @@ function add(entry, lang) {
     id,
     word: entry.word,
     translation: entry.translation || '',
+    phonetic: entry.phonetic || '',
     category: entry.category || '其他',
     lang: lang || 'en',
     level: entry.level || '',

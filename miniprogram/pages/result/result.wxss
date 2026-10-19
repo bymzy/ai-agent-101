@@ -82,6 +82,12 @@
   font-weight: 600;
 }
 
+.word-phonetic {
+  margin-top: 2rpx;
+  color: #a8adb5;
+  font-size: 24rpx;
+}
+
 .word-translation {
   margin-top: 4rpx;
   color: #8a9099;
@@ -127,6 +133,36 @@
 
 .actions .primary-btn {
   flex: 1;
+}
+
+.record-hint {
+  margin-top: 16rpx;
+  color: #e64340;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.record-panel {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 20rpx;
+}
+
+.record-btn {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.record-btn-last {
+  margin-right: 0;
+}
+
+.record-again {
+  width: 100%;
+  margin-top: 16rpx;
+  color: #07c160;
+  font-size: 26rpx;
+  text-align: center;
 }
 
 .regenerate {

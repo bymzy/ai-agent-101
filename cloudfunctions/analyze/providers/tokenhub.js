@@ -96,6 +96,17 @@ function detectMimeType(buffer) {
   return 'image/jpeg';
 }
 
+function phoneticRequirement(langConfig) {
+  const langId = (langConfig && langConfig.id) || 'en';
+  if (langId === 'ja') {
+    return '日语用平假名标注读音（如 ねこ）';
+  }
+  if (langId === 'ko') {
+    return '韩语用罗马音标注读音（如 고양이 → goyangi）';
+  }
+  return '使用国际音标（IPA，放在斜杠内，如 /kæt/）';
+}
+
 function buildPrompt(levelConfig, langConfig) {
   const levelName = levelConfig.name || '入门';
   const langName = (langConfig && langConfig.name) || '英语';
@@ -110,15 +121,16 @@ function buildPrompt(levelConfig, langConfig) {
     '3. confidence 为 0 到 1 之间的数字；',
     `4. category 必须从以下分类中选择一个：${CATEGORIES.join(' / ')}；`,
     '5. bbox 为归一化坐标：x/y 左上角，w/h 宽高，取值 0 到 1，尽量贴紧物体；不确定时省略；',
-    `6. 句子必须包含至少 ${levelConfig.minWords} 个 words 中的单词，总词数不超过 ${levelConfig.maxWords}；`,
-    '7. 句子必须包含主语和谓语，不能只输出短语或名词堆砌；',
-    '8. 句子要与图片内容一致，可描述颜色、位置或关系；',
-    '9. 提供准确、自然的中文翻译；',
-    '10. usedWords 列出句子实际用到的 words 中的单词；',
-    '11. scene 用一句简短中文描述图片内容和物体之间的位置、颜色或数量关系；',
-    '12. 只输出 JSON 对象，不要输出解释或 Markdown 代码块。',
+    `6. 为每个单词给出 phonetic 发音标注：${phoneticRequirement(langConfig)}；不确定时省略该字段；`,
+    `7. 句子必须包含至少 ${levelConfig.minWords} 个 words 中的单词，总词数不超过 ${levelConfig.maxWords}；`,
+    '8. 句子必须包含主语和谓语，不能只输出短语或名词堆砌；',
+    '9. 句子要与图片内容一致，可描述颜色、位置或关系；',
+    '10. 提供准确、自然的中文翻译；',
+    '11. usedWords 列出句子实际用到的 words 中的单词；',
+    '12. scene 用一句简短中文描述图片内容和物体之间的位置、颜色或数量关系；',
+    '13. 只输出 JSON 对象，不要输出解释或 Markdown 代码块。',
     '格式示例：',
-    '{"scene":"一个红色正方形在左上方，一个蓝色圆形在右下方。","words":[{"word":"square","translation":"正方形","confidence":0.98,"category":"颜色形状","bbox":{"x":0.1,"y":0.15,"w":0.35,"h":0.4}}],"sentence":"The red square is on the left and the blue circle is on the right.","translation":"红色正方形在左边，蓝色圆形在右边。","usedWords":["square","circle"]}',
+    '{"scene":"一个红色正方形在左上方，一个蓝色圆形在右下方。","words":[{"word":"square","translation":"正方形","confidence":0.98,"category":"颜色形状","phonetic":"/skweə(r)/","bbox":{"x":0.1,"y":0.15,"w":0.35,"h":0.4}}],"sentence":"The red square is on the left and the blue circle is on the right.","translation":"红色正方形在左边，蓝色圆形在右边。","usedWords":["square","circle"]}',
   ].join('\n');
 }
 
@@ -245,6 +257,10 @@ function normalizeWords(list, levelConfig) {
       level: levelConfig.id,
       category: normalizeCategory(item.category),
     };
+    const phonetic = typeof item.phonetic === 'string' ? item.phonetic.trim().slice(0, 50) : '';
+    if (phonetic) {
+      entry.phonetic = phonetic;
+    }
     const bbox = normalizeBbox(item.bbox);
     if (bbox) {
       entry.bbox = bbox;

@@ -1,6 +1,11 @@
 <view class="page">
   <view wx:if="{{!total}}" class="empty">单词本还是空的，去结果页点星标收藏吧</view>
 
+  <view wx:if="{{total}}" class="wb-header">
+    <view class="wb-count">共 {{total}} 词{{dueCount ? ' · ' + dueCount + ' 个待复习' : ''}}</view>
+    <button class="primary-btn wb-start" bindtap="openReview">开始复习</button>
+  </view>
+
   <view wx:for="{{groups}}" wx:key="lang" class="group">
     <view class="group-title">{{item.langName}}</view>
 
@@ -19,7 +24,11 @@
         class="word-row"
       >
         <view class="word-info">
-          <view class="word-text">{{word.word}}</view>
+          <view class="word-head">
+            <view class="word-text">{{word.word}}</view>
+            <view wx:if="{{word.lapsed}}" class="word-badge">待强化</view>
+          </view>
+          <view wx:if="{{word.phonetic}}" class="word-phonetic">{{word.phonetic}}</view>
           <view class="word-translation">{{word.translation}}</view>
         </view>
         <view class="word-remove" data-id="{{word.id}}" catchtap="removeWord">删除</view>

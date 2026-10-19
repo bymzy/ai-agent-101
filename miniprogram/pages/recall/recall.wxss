@@ -1,0 +1,105 @@
+.empty {
+  padding: 120rpx 40rpx;
+  color: #a8adb5;
+  font-size: 28rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.empty-btn {
+  margin-top: 32rpx;
+}
+
+.recall-photo-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16rpx;
+  background: #f2f3f5;
+}
+
+.recall-photo {
+  display: block;
+  width: 100%;
+}
+
+.recall-box {
+  position: absolute;
+  box-sizing: border-box;
+  border: 3rpx solid transparent;
+  border-radius: 8rpx;
+}
+
+.recall-box-on {
+  border-color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.recall-box-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 100%;
+  padding: 2rpx 10rpx;
+  border-radius: 0 0 8rpx 0;
+  background: #07c160;
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recall-hint {
+  margin: 20rpx 0;
+  color: #8a9099;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.recall-card {
+  text-align: center;
+}
+
+.recall-word {
+  font-size: 52rpx;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.recall-phonetic {
+  margin-top: 8rpx;
+  color: #a8adb5;
+  font-size: 28rpx;
+}
+
+.recall-translation {
+  margin-top: 12rpx;
+  color: #4e5969;
+  font-size: 32rpx;
+}
+
+.recall-grade {
+  display: flex;
+  margin-top: 32rpx;
+}
+
+.recall-grade-btn {
+  flex: 1;
+}
+
+.recall-grade-btn + .recall-grade-btn {
+  margin-left: 20rpx;
+}
+
+.recall-score {
+  margin: 24rpx 0;
+  font-size: 40rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.recall-btn {
+  margin-top: 24rpx;
+}

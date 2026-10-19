@@ -40,4 +40,9 @@ Page({
     );
     wx.navigateTo({ url: '/pages/result/result' });
   },
+
+  openRecall(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: `/pages/recall/recall?id=${id}` });
+  },
 });

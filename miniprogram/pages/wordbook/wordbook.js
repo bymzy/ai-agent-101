@@ -1,10 +1,12 @@
 const { getLanguage } = require('../../common/languages');
 const wordbook = require('../../utils/wordbook');
+const review = require('../../utils/review');
 
 Page({
   data: {
     groups: [],
     total: 0,
+    dueCount: 0,
   },
 
   onShow() {
@@ -12,7 +14,9 @@ Page({
   },
 
   load() {
-    const items = wordbook.load();
+    const items = wordbook.load().map((item) =>
+      Object.assign({}, item, { lapsed: review.getState(item.id).lapsed })
+    );
     const langMap = {};
 
     items.forEach((item) => {
@@ -44,7 +48,19 @@ Page({
       };
     });
 
-    this.setData({ groups, total: items.length });
+    this.setData({
+      groups,
+      total: items.length,
+      dueCount: review.getDueCount(),
+    });
+  },
+
+  openReview() {
+    if (!this.data.total) {
+      wx.showToast({ title: '单词本还是空的', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/review/review' });
   },
 
   removeWord(e) {

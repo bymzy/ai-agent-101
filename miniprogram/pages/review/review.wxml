@@ -1,0 +1,77 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">准备中…</view>
+
+  <view wx:elif="{{empty}}" class="empty">
+    <view>单词本还是空的</view>
+    <navigator class="empty-link" url="/pages/wordbook/wordbook">去单词本看看</navigator>
+  </view>
+
+  <view wx:elif="{{finished}}" class="section">
+    <view class="section-title">本轮完成</view>
+    <view class="review-score">答对 {{correctCount}} / {{total}}</view>
+    <view wx:if="{{lapsedWords.length}}" class="review-lapsed">
+      待强化：
+      <text wx:for="{{lapsedWords}}" wx:key="*this" class="review-lapsed-word">{{item}} </text>
+    </view>
+    <button class="primary-btn review-btn" bindtap="restart">再来一轮</button>
+    <button class="secondary-btn review-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <block wx:else>
+    <view class="review-progress">第 {{index + 1}} / {{total}} 题 · {{modeName}}</view>
+    <view wx:if="{{practiceMode && index === 0}}" class="review-hint">
+      暂无到期单词，本轮为巩固练习
+    </view>
+
+    <view class="review-card">
+      <block wx:if="{{mode === 'word2meaning'}}">
+        <view class="review-word">{{current.word}}</view>
+        <view wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</view>
+        <view class="review-ask">选择正确的中文释义</view>
+      </block>
+
+      <block wx:elif="{{mode === 'meaning2word'}}">
+        <view class="review-meaning">{{current.translation}}</view>
+        <view class="review-ask">回忆对应的单词</view>
+        <block wx:if="{{revealed}}">
+          <view class="review-word">{{current.word}}</view>
+          <view wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</view>
+        </block>
+      </block>
+
+      <block wx:else>
+        <view class="review-listen" bindtap="playWord">播放单词</view>
+        <view class="review-ask">听发音，选择正确的中文释义</view>
+      </block>
+
+      <view wx:if="{{options.length}}" class="review-options">
+        <view
+          wx:for="{{options}}"
+          wx:key="text"
+          class="review-option review-option-{{item.state}}"
+          data-index="{{index}}"
+          bindtap="chooseOption"
+        >
+          {{item.text}}
+        </view>
+      </view>
+
+      <button
+        wx:if="{{mode === 'meaning2word' && !revealed}}"
+        class="primary-btn review-btn"
+        bindtap="revealAnswer"
+      >
+        显示答案
+      </button>
+
+      <view wx:if="{{mode === 'meaning2word' && revealed && !graded}}" class="review-grade">
+        <button class="primary-btn review-grade-btn" data-correct="1" bindtap="selfGrade">
+          记得
+        </button>
+        <button class="secondary-btn review-grade-btn" data-correct="0" bindtap="selfGrade">
+          不记得
+        </button>
+      </view>
+    </view>
+  </block>
+</view>

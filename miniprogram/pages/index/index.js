@@ -4,6 +4,9 @@ const { LEVELS, LEVEL_IDS } = require('../../common/levels');
 const { LANGUAGES, LANGUAGE_IDS } = require('../../common/languages');
 const cloudApi = require('../../utils/cloud');
 const imageUtil = require('../../utils/image');
+const history = require('../../utils/history');
+const wordbook = require('../../utils/wordbook');
+const stats = require('../../utils/stats');
 
 function buildLevels() {
   return LEVEL_IDS.map((id) => ({ id, name: LEVELS[id].name }));
@@ -22,6 +25,12 @@ Page({
     loading: false,
     loadingText: config.useCombinedAnalyze ? '分析中…' : '识别中…',
     error: '',
+    summary: {
+      todayAnswered: 0,
+      goal: 5,
+      streak: 0,
+      totalAnswered: 0,
+    },
   },
 
   onLoad() {
@@ -33,6 +42,27 @@ Page({
     if (lang) {
       this.setData({ lang });
     }
+  },
+
+  onShow() {
+    this.setData({ summary: stats.getSummary() });
+  },
+
+  openReview() {
+    if (!wordbook.load().length) {
+      wx.showToast({ title: '单词本还是空的', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/review/review' });
+  },
+
+  openRecall() {
+    const latest = history.load()[0];
+    if (!latest) {
+      wx.showToast({ title: '还没有识别记录', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: `/pages/recall/recall?id=${latest.id}` });
   },
 
   onSelectLevel(e) {

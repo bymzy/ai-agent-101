@@ -3,7 +3,9 @@
     "pages/index/index",
     "pages/result/result",
     "pages/history/history",
-    "pages/wordbook/wordbook"
+    "pages/wordbook/wordbook",
+    "pages/review/review",
+    "pages/recall/recall"
   ],
   "window": {
     "navigationBarTitleText": "拍照学外语",

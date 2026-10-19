@@ -1,21 +1,21 @@
 const WORDS_BY_LEVEL = {
   primary: [
-    { word: 'cat', translation: '猫' },
-    { word: 'dog', translation: '狗' },
-    { word: 'apple', translation: '苹果' },
-    { word: 'cup', translation: '杯子' },
+    { word: 'cat', translation: '猫', phonetic: '/kæt/' },
+    { word: 'dog', translation: '狗', phonetic: '/dɒɡ/' },
+    { word: 'apple', translation: '苹果', phonetic: '/ˈæp.əl/' },
+    { word: 'cup', translation: '杯子', phonetic: '/kʌp/' },
   ],
   junior: [
-    { word: 'book', translation: '书' },
-    { word: 'tree', translation: '树' },
-    { word: 'car', translation: '汽车' },
-    { word: 'chair', translation: '椅子' },
+    { word: 'book', translation: '书', phonetic: '/bʊk/' },
+    { word: 'tree', translation: '树', phonetic: '/triː/' },
+    { word: 'car', translation: '汽车', phonetic: '/kɑː(r)/' },
+    { word: 'chair', translation: '椅子', phonetic: '/tʃeə(r)/' },
   ],
   senior: [
-    { word: 'window', translation: '窗户' },
-    { word: 'table', translation: '桌子' },
-    { word: 'phone', translation: '手机' },
-    { word: 'flower', translation: '花' },
+    { word: 'window', translation: '窗户', phonetic: '/ˈwɪn.dəʊ/' },
+    { word: 'table', translation: '桌子', phonetic: '/ˈteɪ.bəl/' },
+    { word: 'phone', translation: '手机', phonetic: '/fəʊn/' },
+    { word: 'flower', translation: '花', phonetic: '/ˈflaʊ.ə(r)/' },
   ],
 };
 
@@ -24,6 +24,7 @@ function recognize(level) {
   const words = pool.map((item, index) => ({
     word: item.word,
     translation: item.translation,
+    phonetic: item.phonetic,
     confidence: Number((0.95 - index * 0.05).toFixed(2)),
     level: level || 'primary',
   }));

@@ -93,6 +93,17 @@ function detectMimeType(buffer) {
   return 'image/jpeg';
 }
 
+function phoneticRequirement(langConfig) {
+  const langId = (langConfig && langConfig.id) || 'en';
+  if (langId === 'ja') {
+    return '日语用平假名标注读音（如 ねこ）';
+  }
+  if (langId === 'ko') {
+    return '韩语用罗马音标注读音（如 고양이 → goyangi）';
+  }
+  return '使用国际音标（IPA，放在斜杠内，如 /kæt/）';
+}
+
 function buildPrompt(levelConfig, langConfig) {
   const levelName = levelConfig.name || '入门';
   const langName = (langConfig && langConfig.name) || '英语';
@@ -106,10 +117,11 @@ function buildPrompt(levelConfig, langConfig) {
     '3. confidence 为 0 到 1 之间的数字；',
     '4. 为每个物体给出归一化边界框 bbox：x/y 为左上角，w/h 为宽高，取值 0 到 1，尽量贴紧物体；不确定时省略 bbox；',
     `5. 为每个物体给出 category，必须从以下分类中选择一个：${CATEGORIES.join(' / ')}；`,
-    '6. scene 用一句简短中文描述图片内容和物体之间的位置、颜色或数量关系，只描述真实可见内容，不要编造；',
-    '7. 只输出 JSON 对象，不要输出解释或 Markdown 代码块。',
+    `6. 为每个单词给出 phonetic 发音标注：${phoneticRequirement(langConfig)}；不确定时省略该字段；`,
+    '7. scene 用一句简短中文描述图片内容和物体之间的位置、颜色或数量关系，只描述真实可见内容，不要编造；',
+    '8. 只输出 JSON 对象，不要输出解释或 Markdown 代码块。',
     '格式示例：',
-    '{"scene":"一个红色正方形在左边，一个蓝色圆形在右边。","words":[{"word":"square","translation":"正方形","confidence":0.98,"category":"颜色形状","bbox":{"x":0.1,"y":0.15,"w":0.35,"h":0.4}}]}',
+    '{"scene":"一个红色正方形在左边，一个蓝色圆形在右边。","words":[{"word":"square","translation":"正方形","confidence":0.98,"category":"颜色形状","phonetic":"/skweə(r)/","bbox":{"x":0.1,"y":0.15,"w":0.35,"h":0.4}}]}',
   ].join('\n');
 }
 
@@ -247,6 +259,10 @@ function normalizeResult(content, levelConfig) {
       level: levelConfig.id,
       category: normalizeCategory(item.category),
     };
+    const phonetic = typeof item.phonetic === 'string' ? item.phonetic.trim().slice(0, 50) : '';
+    if (phonetic) {
+      entry.phonetic = phonetic;
+    }
     const bbox = normalizeBbox(item.bbox);
     if (bbox) {
       entry.bbox = bbox;
